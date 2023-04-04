@@ -44,7 +44,8 @@ public class InokInterpreter {
         }
     }
 
-    private static void interpretNonMainFunctionLine(String line, int lineNumber, InterpreterState state) throws Exception {
+    private static void interpretNonMainFunctionLine(String line, int lineNumber, InterpreterState state)
+            throws Exception {
         Matcher mainFunctionMatcher = MAIN_FUNCTION_PATTERN.matcher(line);
         if (mainFunctionMatcher.matches()) {
             handleMainFunction(lineNumber, state);
@@ -80,7 +81,8 @@ public class InokInterpreter {
     }
 
     private static void checkForMissingClosingCurlyBracket(InterpreterState state, File file) {
-        if (state.mode == InterpreterMode.MAIN_FUNCTION && state.numMainFunctions == 1 && !state.hasClosingCurlyBracket) {
+        if (state.mode == InterpreterMode.MAIN_FUNCTION && state.numMainFunctions == 1
+                && !state.hasClosingCurlyBracket) {
             System.err.println("Error: Missing closing curly bracket for main function");
             state.hasSyntaxError = true;
         }
