@@ -1,26 +1,27 @@
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class InokInterpreter {
-    private static final Pattern MAIN_FUNCTION_PATTERN = Regex.MAIN_FUNCTION_PATTERN;
-    private static final Pattern DISPLAY_STATEMENT_PATTERN = Regex.DISPLAY_STATEMENT_PATTERN;
 
     public static void interpret(File file) throws IOException, Exception {
         List<String> lines = Files.readAllLines(file.toPath());
         InterpreterState state = new InterpreterState(file);
+        Map<String, String> variables = new HashMap<>();
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
             if(checkComments(line)) continue;
             switch (state.mode) {
                 case MAIN_FUNCTION:
-                    interpretMainFunctionLine(line, i, state);
+                    interpretMainFunctionLine(line, i, state, variables);
                     break;
                 case NON_MAIN_FUNCTION:
-                    interpretNonMainFunctionLine(line, i, state);
+                    interpretNonMainFunctionLine(line, i, state, variables);
                     break;
                 default:
                     throw new IllegalStateException("Unknown interpreter mode: " + state.mode);
@@ -30,10 +31,15 @@ public class InokInterpreter {
         printSyntaxErrors(state, file);
     }
 
-    private static void interpretMainFunctionLine(String line, int lineNumber, InterpreterState state) {
-        Matcher displayMatcher = DISPLAY_STATEMENT_PATTERN.matcher(line);
+    private static void interpretMainFunctionLine(String line, int lineNumber, InterpreterState state, Map<String, String> variables) throws Exception {
+        Matcher displayMatcher = Regex.DISPLAY_STATEMENT_PATTERN.matcher(line);
         if (displayMatcher.matches()) {
-            interpretDisplayStatement(displayMatcher.group(1), lineNumber, state);
+            interpretDisplayStatement(displayMatcher.group(1), lineNumber, state, variables);
+            return;
+        }
+        Matcher variableDeclarationMatcher = Regex.VARIABLE_DECLARATION_PATTERN.matcher(line);
+        if (variableDeclarationMatcher.matches()) {
+            interpretVariableDeclaration(variableDeclarationMatcher.group(1), variableDeclarationMatcher.group(2), lineNumber, state, variables);
             return;
         }
         switch (line.trim()) {
@@ -45,9 +51,9 @@ public class InokInterpreter {
         }
     }
 
-    private static void interpretNonMainFunctionLine(String line, int lineNumber, InterpreterState state)
+    private static void interpretNonMainFunctionLine(String line, int lineNumber, InterpreterState state, Map<String, String> variables)
             throws Exception {
-        Matcher mainFunctionMatcher = MAIN_FUNCTION_PATTERN.matcher(line);
+        Matcher mainFunctionMatcher = Regex.MAIN_FUNCTION_PATTERN.matcher(line);
         if (mainFunctionMatcher.matches()) {
             handleMainFunction(lineNumber, state);
         } else if (!line.trim().isEmpty()) {
@@ -67,12 +73,42 @@ public class InokInterpreter {
         return line.trim().startsWith("$$");
     }
 
-    private static void interpretDisplayStatement(String message, int lineNumber, InterpreterState state) {
-        if (message.trim().isEmpty()) {
-            handleEmptyDisplayStatement(lineNumber, state);
-        } else {
-            System.out.println(message);
+    private static void interpretDisplayStatement(String message, int lineNumber, InterpreterState state, Map<String, String> variables) {
+        try {
+            String evaluatedMessage = evaluateVariables(message, variables);
+            if (evaluatedMessage.trim().isEmpty()) {
+                handleEmptyDisplayStatement(lineNumber, state);
+            } else {
+                evaluatedMessage = evaluatedMessage.replaceAll("\"", "");
+                System.out.println(evaluatedMessage);
+            }
+        } catch (Exception e) {
+            System.err.println("Error on line " + (lineNumber + 1) + ": " + e.getMessage());
+            state.hasSyntaxError = true;
         }
+    }
+
+    private static void interpretVariableDeclaration(String variableName, String variableValue, int lineNumber, InterpreterState state, Map<String, String> variables) throws Exception {
+        if (variableValue == null || variableValue.isEmpty()) {
+            throw new Exception("Invalid syntax, " + variableName + " is empty on line " + (lineNumber + 1));
+        }
+        String evaluatedValue = evaluateVariables(variableValue, variables);
+        variables.put(variableName, evaluatedValue);
+    }
+
+    private static String evaluateVariables(String message, Map<String, String> variables) throws Exception {
+        Matcher variableReferenceMatcher = Regex.VARIABLE_REFERENCE_PATTERN.matcher(message);
+        StringBuffer sb = new StringBuffer();
+        while (variableReferenceMatcher.find()) {
+            String variableName = variableReferenceMatcher.group(1);
+            String variableValue = variables.get(variableName);
+            if (variableValue == null || variableValue.isEmpty()) {
+                throw new Exception("Invalid syntax, " + variableName + " is empty");
+            }
+            variableReferenceMatcher.appendReplacement(sb, variableValue);
+        }
+        variableReferenceMatcher.appendTail(sb);
+        return sb.toString();
     }
 
     private static void handleEmptyDisplayStatement(int lineNumber, InterpreterState state) {

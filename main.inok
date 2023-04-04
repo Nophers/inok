@@ -1,4 +1,7 @@
-$$ this is a comment
+$$ This is a comment
+
 fu main() {
-display("kek bro");
+    let name = "BabyGirl";
+    let age = 69;
+    display("Hello Nerd ${name}, you are sadly ${age} y/o");
 }
