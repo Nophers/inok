@@ -639,7 +639,7 @@ public class Engine {
         private List<Transition> getMatchingTransitions(Character input) {
             List<Transition> matchingTransitions = new ArrayList<>();
             for (Transition transition : transitions) {
-                if (transition.input == null || transition.input.equals(input.toString())) {
+                if (input == null || transition.input == null || transition.input.equals(input.toString())) {
                     matchingTransitions.add(transition);
                 }
             }
