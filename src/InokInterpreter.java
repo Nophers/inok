@@ -14,6 +14,7 @@ public class InokInterpreter {
         InterpreterState state = new InterpreterState(file);
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
+            if(checkComments(line)) continue;
             switch (state.mode) {
                 case MAIN_FUNCTION:
                     interpretMainFunctionLine(line, i, state);
@@ -60,6 +61,10 @@ public class InokInterpreter {
             throw new Exception("Multiple main functions found in file: " + state.file.getAbsolutePath());
         }
         state.mode = InterpreterMode.MAIN_FUNCTION;
+    }
+
+    private static boolean checkComments(String line) {
+        return line.trim().startsWith("$$");
     }
 
     private static void interpretDisplayStatement(String message, int lineNumber, InterpreterState state) {
