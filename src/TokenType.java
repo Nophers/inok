@@ -1,0 +1,14 @@
+public enum TokenType {
+    LET,
+    FUNCTION,
+    MAIN,
+    DISPLAY,
+    OPEN_BRACE,
+    CLOSE_BRACE,
+    OPEN_PAREN,
+    CLOSE_PAREN,
+    SEMICOLON,
+    VARIABLE_REFERENCE,
+    IDENTIFIER,
+    STRING_LITERAL
+}
