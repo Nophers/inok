@@ -37,13 +37,13 @@ public class Lexer {
      * @return the type of the token
      */
     private static TokenType determineTokenType(String tokenValue) {
-        return VARIABLE_REFERENCE_PATTERN.matcher(tokenValue).matches()
+        return Regex.LEXER_VARIABLE_REFERENCE_PATTERN.matcher(tokenValue).matches()
                 ? TokenType.VARIABLE_REFERENCE
-                : IDENTIFIER_PATTERN.matcher(tokenValue).matches()
-                ? TokenType.IDENTIFIER
-                : STRING_LITERAL_PATTERN.matcher(tokenValue).matches()
-                ? TokenType.STRING_LITERAL
-                : null;
+                : Regex.LEXER_IDENTIFIER_PATTERN.matcher(tokenValue).matches()
+                        ? TokenType.IDENTIFIER
+                        : Regex.LEXER_STRING_LITERAL_PATTERN.matcher(tokenValue).matches()
+                                ? TokenType.STRING_LITERAL
+                                : null;
     }
 
     /**
@@ -58,42 +58,27 @@ public class Lexer {
             "}", TokenType.CLOSE_BRACE,
             "(", TokenType.OPEN_PAREN,
             ")", TokenType.CLOSE_PAREN,
-            ";", TokenType.SEMICOLON
-    );
+            ";", TokenType.SEMICOLON);
 
     /**
-     public static void main(String[] args) {
-        String input = """
-            fu main() {
-            let name = "Koni";
-            let age = 123;
-            display("${name} is ${age} years old");
-        }
-        """;
-
-     try {
-        List<Token> tokens = Lexer.tokenize(input);
-            for (Token token : tokens) {
-                System.out.println(token.getType() + " " + token.getValue());
-            }
-         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-     }
+     * public static void main(String[] args) {
+     * String input = """
+     * fu main() {
+     * let name = "Koni";
+     * let age = 123;
+     * display("${name} is ${age} years old");
+     * }
+     * """;
+     * 
+     * try {
+     * List<Token> tokens = Lexer.tokenize(input);
+     * for (Token token : tokens) {
+     * System.out.println(token.getType() + " " + token.getValue());
+     * }
+     * } catch (Exception e) {
+     * System.out.println("Error: " + e.getMessage());
+     * }
+     * }
      */
 
-    /**
-     * A regular expression pattern for matching variable references.
-     */
-    private static final Pattern VARIABLE_REFERENCE_PATTERN = Pattern.compile("\\$\\{\\w+}");
-
-    /**
-     * A regular expression pattern for matching identifiers.
-     */
-    private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("\\w+");
-
-    /**
-     * A regular expression pattern for matching string literals.
-     */
-    private static final Pattern STRING_LITERAL_PATTERN = Pattern.compile("\"[^\"]*\"");
 }
