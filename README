@@ -2,9 +2,11 @@ Small side project, a baby lang.
 
 Syntax: 
 
-
+```
+$$ this is a comment
 fu main() {
   display("kek bro");
 }
+```
 
 WIP but don't expect anything, J4F.
