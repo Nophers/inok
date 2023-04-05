@@ -59,25 +59,4 @@ public class Lexer {
             ")", TokenType.CLOSE_PAREN,
             ";", TokenType.SEMICOLON);
 
-    /**
-     * public static void main(String[] args) {
-     * String input = """
-     * fu main() {
-     * let name = "Koni";
-     * let age = 123;
-     * display("${name} is ${age} years old");
-     * }
-     * """;
-     * 
-     * try {
-     * List<Token> tokens = Lexer.tokenize(input);
-     * for (Token token : tokens) {
-     * System.out.println(token.getType() + " " + token.getValue());
-     * }
-     * } catch (Exception e) {
-     * System.out.println("Error: " + e.getMessage());
-     * }
-     * }
-     */
-
 }
